@@ -29,6 +29,9 @@ window.onload = async function () {
 const apiUrl =
   "https://llmfoundry.straive.com/gemini/v1beta/openai/chat/completions";
 
+
+
+
 const requestCode = async (prompt) => {
   const res = await fetch(apiUrl, {
     method: "POST",
@@ -49,29 +52,62 @@ const requestCode = async (prompt) => {
   );
 };
 
+
+let previousCode = ""; // Store the last generated code
+
+const updatePreview = (code) => {
+  console.log(code);
+
+  const iframe = document.getElementById("preview");
+
+  // Store the previous code before updating
+  previousCode = code; 
+
+  // Reset the iframe to force a clean reload
+  iframe.srcdoc = ""; 
+  iframe.src = "about:blank";  
+
+  setTimeout(() => {
+    iframe.srcdoc = code;
+  }, 10);
+
+  console.log(iframe);
+
+  iframe.title = 'Live Preview';
+  iframe.sandbox = 'allow-scripts allow-modals allow-forms allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation allow-downloads';
+
+  document.getElementById("improvement").style.display = "block";
+  document.getElementById("apply").style.display = "block";
+};
+
 document.getElementById("submit").onclick = async () => {
   const desc = document.getElementById("input").value.trim();
   if (!desc) return alert("Enter app details.");
-  const code =
-    await requestCode(`Generate a complete frontend application that is self-contained HTML document with all styles and scripts included inline. Do not separate the code into multiple files (e.g., no external CSS or JavaScript files). The entire webpage should be within a single HTML file, using <style> for CSS and <script> for JavaScript inside the <head> or <body> as appropriate. Ensure the document is functional, properly structured, and formatted for direct rendering in a browser.
-Provide the full code as a single self-contained HTML document.Description:\n\n${desc}`);
+
+  const code = await requestCode(
+`Generate a complete frontend application that is self-contained HTML document with all styles and scripts included inline. Do not separate the code into multiple files (e.g., no external CSS or JavaScript files). The entire webpage should be within a single HTML file, using <style> for CSS and <script> for JavaScript inside the <head> or <body> as appropriate. Ensure the document is functional, properly structured, and formatted for direct rendering in a browser.
+Provide the full code as a single self-contained HTML document.Description:\n\n${desc}`
+  );
+
   updatePreview(code);
 };
 
 document.getElementById("apply").onclick = async () => {
   const improv = document.getElementById("improvement").value.trim();
   if (!improv) return alert("Enter improvement details.");
-  const oldCode =
-    document.getElementById("preview").contentDocument.documentElement
-      .outerHTML;
+
+  if (!previousCode) {
+    return alert("No previous code found. Generate an app first.");
+  }
+
   const code = await requestCode(`Here is the existing frontend code:
 
-    ${oldCode}
-
+${previousCode}
+  
 The user has requested the following improvements:
-
+  
 ${improv}
-
+  
 Provide the fully updated frontend application code as a complete, self-contained HTML document. The generated code must include all styles and scripts inline, ensuring the entire implementation is contained within a single HTML file.  
 **Do not use placeholders** like \`/* ...existing styles... */\` or \`<!-- existing code -->\`. The generated code must be **complete** with all necessary elements included.  
 Do not summarize, reference, or output only the changes—generate the **entire updated version from scratch** based on the requested improvements.  
@@ -82,12 +118,3 @@ Each time an improvement is requested, enhance the application further, ensuring
   updatePreview(code);
 };
 
-const updatePreview = (code) => {
-  console.log(code);
-
-  const iframe = document.getElementById("preview");
-  iframe.srcdoc = code;
-  iframe.title = "Live Preview";
-  document.getElementById("improvement").style.display = "block";
-  document.getElementById("apply").style.display = "block";
-};
