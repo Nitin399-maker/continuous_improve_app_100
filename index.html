@@ -5,59 +5,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Website Generator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
+        :root {
+          --bg-color: #121212;
+          --text-color: #e0e0e0;
+          --primary-color: #bb86fc;
+          --secondary-color: #03dac6;
+          --border-radius: 12px;
+          --transition: 0.3s ease-in-out;
+          --glass-bg: rgba(255, 255, 255, 0.05);
+          --glass-blur: blur(10px);
+          --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
 
-    h2 {
-      color: #333;
-    }
+      body {
+          font-family: 'Arial', sans-serif;
+          background-color: var(--bg-color);
+          color: var(--text-color);
+          margin: 0;
+          padding: 20px;
+          text-align: center;
+          transition: background-color var(--transition), color var(--transition);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+         
+      }
 
-    textarea {
-      width: 80%;
-      height: 100px;
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
+      .container {
+          display: grid;
+          grid-template-columns: 1fr;
+          max-width: 600px;
+          padding: 20px;
+          border-radius: var(--border-radius);
+          background: var(--glass-bg);
+          box-shadow: var(--box-shadow);
+          backdrop-filter: var(--glass-blur);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: transform var(--transition), box-shadow var(--transition);
+      }
 
-    button {
-      background-color: #007bff;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 5px;
-      transition: 0.3s;
-    }
+      .container:hover {
+          transform: scale(1.02);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      }
 
-    button:hover {
-      background-color: #0056b3;
-    }
+      h2 {
+          color: var(--primary-color);
+          background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-size: 24px;
+      }
 
-    iframe {
-      width: 80%;
-      height: 500px;
-      border: 1px solid #ddd;
-      margin-top: 20px;
-      border-radius: 5px;
-      background-color: white;
-    }
+      textarea {
+          width: 100%;
+          height: 100px;
+          margin-bottom: 10px;
+          padding: 10px;
+          border: none;
+          border-radius: var(--border-radius);
+          font-size: 16px;
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--text-color);
+          outline: none;
+          transition: box-shadow var(--transition);
+      }
 
-    #improvement {
-      display: none;
-      width: 80%;
-      height: 100px;
-      margin-top: 10px;
-    }
+      textarea:focus {
+          box-shadow: 0 0 10px var(--primary-color);
+      }
+
+      button {
+          background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+          color: white;
+          padding: 12px 18px;
+          border: none;
+          border-radius: var(--border-radius);
+          font-size: 16px;
+          cursor: pointer;
+          margin: 5px;
+          transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+          font-weight: bold;
+      }
+
+      button:hover {
+          transform: scale(1.1);
+          box-shadow: 0 4px 20px var(--primary-color);
+      }
+
+      .toggle-mode {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: 2px solid var(--primary-color);
+          color: var(--primary-color);
+          padding: 8px 12px;
+          cursor: pointer;
+          transition: var(--transition);
+          font-weight: bold;
+      }
+
+      .toggle-mode:hover {
+          background: var(--primary-color);
+          color: #121212;
+          transform: scale(1.1);
+          box-shadow: 0 4px 15px var(--primary-color);
+      }
+
+      iframe {
+          width: 1000px;
+          height: 500px;
+          border: 1px solid #ddd;
+          margin-top: 20px;
+          border-radius: var(--border-radius);
+          background-color: rgba(255, 255, 255, 0.1);
+          color: white;
+          
+      
+      }
+
+      iframe:hover {
+          box-shadow: 0 0 20px var(--secondary-color);
+      }
+
+      @media (max-width: 600px) {
+          .container {
+              padding: 15px;
+          }
+
+          button {
+              width: 100%;
+          }
+      }
   </style>
 </head>
 <body>
@@ -70,7 +151,12 @@
   <br>
   <button id="apply" style="display:none;">Improve</button>
   <br>
-  <iframe id="preview"></iframe>
-  <script src="app.js"></script>
+  <iframe id="preview" style="display: none;"></iframe>
+  <div id="explanation"></div>
+  <div id="explanationContainer"></div>
+  <script src="app.js" type="module"></script>
 </body>
 </html>
+
+
+
