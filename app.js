@@ -12,13 +12,10 @@ const requestCode = async (prompt) => {
 
   let fullContent = "";
   let currentChunk = "";
-  let tempIframe = null;
+  let tempIframe = document.createElement("iframe"); // Always create a temp iframe
 
-  // Create temporary iframe for streaming if not improving
-  if (!prompt.includes("### Explanation of Improvements and Changes:")) {
-    tempIframe = document.createElement('iframe');
-    document.body.appendChild(tempIframe);
-  }
+  // Append tempIframe to body for live preview
+  document.body.appendChild(tempIframe);
 
   try {
     for await (const data of asyncLLM(apiUrl, {
@@ -39,44 +36,41 @@ const requestCode = async (prompt) => {
         if (currentChunk.includes("</html>") || currentChunk.includes("</body>") || currentChunk.includes("</div>")) {
           fullContent = currentChunk;
           currentChunk = "";
+
           fullContent = fullContent.replace(/```html/g, "").replace(/```/g, "");
-          
-          // Update temp iframe during streaming only for initial generation
-          if (tempIframe) {
-            const blob = new Blob([fullContent], { type: "text/html" });
-            const url = URL.createObjectURL(blob);
-            tempIframe.src = url;
-            tempIframe.onload = () => URL.revokeObjectURL(url);
-          }
+
+          // Update tempIframe with live preview
+          const blob = new Blob([fullContent], { type: "text/html" });
+          const url = URL.createObjectURL(blob);
+          tempIframe.src = url;
+          tempIframe.onload = () => URL.revokeObjectURL(url);
         }
       }
     }
 
+    // Ensure the last part is also added
     if (currentChunk) {
       fullContent += currentChunk;
       fullContent = fullContent.replace(/```html/g, "").replace(/```/g, "");
-      if (tempIframe) {
-        const blob = new Blob([fullContent], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        tempIframe.src = url;
-        tempIframe.onload = () => URL.revokeObjectURL(url);
-      }
+
+      // Final update to tempIframe
+      const blob = new Blob([fullContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      tempIframe.src = url;
+      tempIframe.onload = () => URL.revokeObjectURL(url);
     }
 
-    // Remove temporary iframe if it exists
-    if (tempIframe) {
-      tempIframe.remove();
-    }
+    // Remove tempIframe once final HTML is ready
+    tempIframe.remove();
 
     return fullContent;
   } catch (error) {
     console.error("Error during LLM request:", error);
-    if (tempIframe) {
-      tempIframe.remove();
-    }
+    tempIframe.remove();
     return "";
   }
 };
+  
 
 let previousCode = "";
 let iterationCount = 0;
@@ -136,7 +130,7 @@ document.getElementById("submit").onclick = async () => {
   setLoading(true, "submit");
   try {
     const code = await requestCode(
-      `Generate a complete frontend application that is self-contained HTML document with all styles and scripts included inline. Do not separate the code into multiple files (e.g., no external CSS or JavaScript files). The entire webpage should be within a single HTML file, using <style> for CSS and <script> for JavaScript inside the <head> or <body> as appropriate. Ensure the document is functional, properly structured, and formatted for direct rendering in a browser.Provide the full code as a single self-contained HTML document.Description:\n\n${desc}`,
+      `Generate a complete frontend application that is self-contained HTML document with all styles and scripts included inline. Do not separate the code into multiple files (e.g., no external CSS or JavaScript files). The entire webpage should be within a single HTML file, using <style> for CSS and <script> for JavaScript inside the <head> or <body> as appropriate. Ensure the document is functional, properly structured, and formatted for direct rendering in a browser.and the explanation should not be more than one line.Provide the full code as a single self-contained HTML document.Description:\n\n${desc}`,
     );
     iterationCount = 0;
     document.getElementById('previewsContainer').innerHTML = ''; // Clear previous versions
@@ -170,7 +164,8 @@ Do not summarize, reference, or output only the changes—generate the **entire 
 Ensure the document is **fully functional**, properly structured, and formatted for direct rendering in a browser. All CSS should be placed inside a <style> tag, and all JavaScript should be included within a <script> tag in the same file.  
 Return only the updated HTML code. The output should be a **fully operational webpage** with all requested updates applied.
 Each time an improvement is requested, enhance the application further, ensuring continuous upgrades with every iteration. Do not summarize or reference changes—always provide the entire, updated HTML file from scratch.
-also return me the explanation of changes in english(human language not in code language) in well formated text that what are the improvements it made from last time.at each time give me the improvments points below "### Explanation of Improvements and Changes:" this line `);
+also return me the explanation of changes in english(human language not in code language) in well formated text that what are the improvements it made from last time.at each time give me the improvments points below "### Explanation of Improvements and Changes:" this line 
+Rewrite the following explanation in a simple, direct, and user-friendly manner. Focus on describing the behavior or functionality rather than technical details. Avoid mentioning variables, functions, or code implementations. Use short sentences and clear wording to make the explanation easy to understand for a non-technical audience.`);
     iterationCount++;
     updatePreview(code);
   } finally {
