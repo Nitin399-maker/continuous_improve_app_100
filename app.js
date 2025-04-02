@@ -130,7 +130,7 @@ document.getElementById("submit").onclick = async () => {
   setLoading(true, "submit");
   try {
     const code = await requestCode(
-      `Generate a complete frontend application that is self-contained HTML document with all styles and scripts included inline. Do not separate the code into multiple files (e.g., no external CSS or JavaScript files). The entire webpage should be within a single HTML file, using <style> for CSS and <script> for JavaScript inside the <head> or <body> as appropriate. Ensure the document is functional, properly structured, and formatted for direct rendering in a browser.and the explanation should not be more than one line.Provide the full code as a single self-contained HTML document.Description:\n\n${desc}`,
+      `Generate a complete frontend application that is self-contained HTML document with all styles and scripts included inline. Do not separate the code into multiple files (e.g., no external CSS or JavaScript files). The entire webpage should be within a single HTML file, using <style> for CSS and <script> for JavaScript inside the <head> or <body> as appropriate. Ensure the document is functional, properly structured, and formatted for direct rendering in a browser.and don't provide any explanation i only want the code .Provide the full code as a single self-contained HTML document.Description:\n\n${desc}`,
     );
     iterationCount = 0;
     document.getElementById('previewsContainer').innerHTML = ''; // Clear previous versions
